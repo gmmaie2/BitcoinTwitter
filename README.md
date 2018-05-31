@@ -1,7 +1,8 @@
 # BitcoinTwitter
 Real-time streaming application - pulls live twitter data on bitcoin and provides a sentiment score
 
-Step 1: start zookeeper service
+
+### Step 1: start zookeeper service ###
 ZookeeperServerSA.java src/main/resources/Zookeeper.properties
   modfiy Zookeeper.properties - provide absloute path to property 'dataDir'
 
