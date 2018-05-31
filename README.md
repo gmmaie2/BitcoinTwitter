@@ -17,7 +17,7 @@ Alternative to first argument you can also provide following argument `info.bitr
 
     BitcoinExchange.java info.bitrich.xchangestream.gdax.GDAXStreamingExchange src/main/resources/Producer.properties exchange
 
-### Step 4: start pulling #bitcoin data from twitters ###
+### Step 4: start pulling #bitcoin data from twitter ###
 Modify bird.properties - provide twitter credential information.
 
 ***Note this step requires a twitter application account.If you do not have one you can follow the steps here: "http://docs.inboundnow.com/guide/create-twitter-application/"***
