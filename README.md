@@ -7,8 +7,8 @@ Modfiy Zookeeper.properties - provide absloute path to property `dataDir`
 
     ZookeeperServerSA.java src/main/resources/Zookeeper.properties
 
-### Step 2: start Kafka service ###
-Mdfiy Kafka.properties - provide absloute path to property `log.dir`
+### Step 2: start kafka service ###
+Modfiy Kafka.properties - provide absloute path to property `log.dir`
 
     KafkaServerSA.java src/main/resources/Kafka.properties src/main/resources/log4j.properties
 
@@ -19,7 +19,8 @@ Alternative to first argument(GDAXStreamingExchange), you can also provide follo
 
 ### Step 4: start pulling #bitcoin data from twitters ###
 Modify bird.properties - provide twitter credential information.
-***Note this step requires a twitter application account.If you do not have one you can follow the steps here: "http://docs.inboundnow.com/guide/create-twitter-application/" ***
+
+***Note this step requires a twitter application account.If you do not have one you can follow the steps here: "http://docs.inboundnow.com/guide/create-twitter-application/"***
 
     TweetSA.java src/main/resources/Producer.properties src/main/resources/bird.properties src/main/resources/log4j.properties testTopic
 
@@ -36,9 +37,11 @@ Modify bird.properties - provide twitter credential information.
     WebServerSA.java src/main/resources/home.html
 
 
-### Step 8: open web browser and type localhost:8000 to visualize data ###
+### Step 8: open web browser and type in url to visualize data ###
 
-### Enjoy!###
+    localhost:8000
+
+# Enjoy!
 
 
 
