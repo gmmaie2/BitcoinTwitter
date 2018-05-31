@@ -1,5 +1,4 @@
 # BitcoinTwitter
-==================
 
 Real-time streaming application - pulls live twitter data on bitcoin and provides a sentiment score
 
