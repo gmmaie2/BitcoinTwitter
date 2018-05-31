@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bitcoin/Twitter</title>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.js"></script>
+    <script type="text/javascript" src="https://github.com/nagix/chartjs-plugin-streaming/releases/download/v1.1.0/chartjs-plugin-streaming.js"></script>
+</head>
+<body>
+<canvas id="exchanges" width="140" height="20"></canvas>
+<canvas id="sentiment" width="140" height="20"></canvas>
+<script type="text/javascript">
+var buf = {};
+buf['exchanges'] = [[], []];
+var buf2 = {};
+buf2['sentiment'] = [[],[]];
+var ws = new WebSocket('ws://localhost:8887');
+
+//callback on message receipt
+ws.onmessage = function(msg) {
+    var myData= JSON.parse(msg.data);
+    if(myData.crypto !== undefined){
+        console.log("crypto")
+        var response = myData.crypto;
+        if (response["last"] != 'null') {
+        console.log(parseFloat(parseFloat(response["last"]).toFixed(2)) + "  -  " + response['timestamp']);
+        console.log("[" + buf['exchanges'][0] + "  -  " + buf['exchanges'][1] + "]");
+        }
+
+        buf['exchanges'][response['exchange'] == "GDAXStreamingExchange" ? 0 : 1].push({
+            // timestamp in milliseconds
+            x: parseInt(response["timestamp"]),
+            // price in US dollar
+            y: parseFloat(parseFloat(response["last"]).toFixed(2)) //(response['exchange'] == "GDAXStreamingExchange" ? parseFloat(parseFloat(response["last"]).toFixed(2)): parseFloat(((parseFloat(response["bid"]) + parseFloat(response["ask"]))/2).toFixed(2))   )
+        });
+    }
+
+    if(myData.Youtube !== undefined || myData.Twitter !== undefined){
+        var sentimentSource = myData.toSource().substring(2,myData.toSource().indexOf(":"))
+        var responseSentiment = myData[sentimentSource]
+        buf2['sentiment'][sentimentSource == "Youtube" ? 0 : 1].push({
+                x: (sentimentSource == "Youtube" ? parseInt(responseSentiment["timestamp"]): parseInt(responseSentiment["timestamp"])*1000), // timestamp in milliseconds
+                y: parseFloat(parseFloat(responseSentiment["sentiment"]).toFixed(2)),      // sentiment score
+                z: (sentimentSource == "Youtube" ? responseSentiment["DisplayMessage"] : responseSentiment["Tweet"])
+         });
+    }
+
+};
+
+
+
+
+var id = 'exchanges';
+var ctx = document.getElementById(id).getContext('2d');
+var chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        datasets: [{
+            data: [],
+            label: 'GDAX',                     //
+            borderColor: 'rgb(255, 99, 132)', // line color
+            backgroundColor: 'rgba(255, 99, 132, 0.5)', // fill color
+            fill: false,                      // no fill
+            lineTension: 0                    // straight line
+        }, {
+            data: [],
+            label: 'Bitfinex',                    //
+            borderColor: 'rgb(54, 162, 235)', // line color
+            backgroundColor: 'rgba(54, 162, 235, 0.5)', // fill color
+            fill: false,                      // no fill
+            lineTension: 0                    // straight line
+        }]
+    },
+    options: {
+        title: {
+            text: 'BTC/USD (' + id + ')', // chart title
+            display: true
+        },
+        scales: {
+            xAxes: [{
+                type: 'realtime' // auto-scroll on X axis
+            }]
+        },
+        plugins: {
+            streaming: {
+                duration: 60000, // display data for the latest 300000ms (5 mins) // 3,600,000 (60min/1hr) // 86,400,000(24hr)
+
+                onRefresh: function(chart) { // callback on chart update interval
+                    Array.prototype.push.apply(
+                        chart.data.datasets[0].data, buf[id][0]
+                    );
+                    Array.prototype.push.apply(
+                        chart.data.datasets[1].data, buf[id][1]
+                    );
+                    buf[id] = [[], []]; // clear buffer
+                }
+
+            }
+        }
+    }
+});
+
+
+var id2 = 'sentiment';
+var ctx2 = document.getElementById(id2).getContext('2d');
+var chart2 = new Chart(ctx2, {
+    type: 'line',
+    data: {
+        datasets: [
+        //{
+            //data: [],
+            //label: 'Youtube',
+            //borderColor: 'rgb(255, 99, 132)', // line color
+            //backgroundColor: 'rgba(255, 99, 132, 0.5)', // fill color
+            //fill: false,                      // no fill
+            //lineTension: 0                    // straight line
+        //},
+        {
+            data: [],
+            label: 'Twitter',
+            borderColor: 'rgb(54, 162, 235)', // line color
+            backgroundColor: 'rgba(54, 162, 235, 0.5)', // fill color
+            fill: false,                      // no fill
+            lineTension: 0                    // straight line
+        }]
+    },
+    options: {
+        title: {
+            text: 'Live (' + id2 + ')', // chart title
+            display: true
+        },
+        scales: {
+            xAxes: [{
+                type: 'realtime' // auto-scroll on X axis
+            }]
+        },
+        tooltips: { // added tooltips to add comments to data points
+         callbacks: {
+            afterBody: function(t, d) {
+
+                var findR = "none";
+                d.datasets[0].data.forEach(r => {
+                    if(r.x.toString() == t[0].xLabel && r.y.toString() == t[0].yLabel){
+                        findR = r.z
+                    }
+                })
+                //d.datasets[1].data.forEach(r => {
+                //    if(r.x.toString() == t[0].xLabel && r.y.toString() == t[0].yLabel){
+                //        findR = r.z
+                //    }
+                //})
+               return findR; //return a string that you wish to append
+            }
+         }
+        },
+        plugins: {
+            streaming: {
+                duration: 60000, // display data for the latest 300000ms (5 mins) // 3,600,000 (60min/1hr) // 86,400,000(24hr)
+
+                onRefresh: function(chart2) { // callback on chart update interval
+                    //Array.prototype.push.apply(
+                    //    chart2.data.datasets[0].data, buf2[id2][0]
+                    //);
+                    //Array.prototype.push.apply(
+                    //    chart2.data.datasets[1].data, buf2[id2][1]
+                    //);
+                    Array.prototype.push.apply(
+                        chart2.data.datasets[0].data, buf2[id2][1]
+                    );
+                    buf2[id2] = [[],[]]; // clear buffer
+                }
+
+            }
+        }
+    }
+});
+
+</script>
+</body>
+</html>
