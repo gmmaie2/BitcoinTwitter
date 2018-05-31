@@ -13,7 +13,7 @@ Modfiy Kafka.properties - provide absloute path to property `log.dir`
     KafkaServerSA.java src/main/resources/Kafka.properties src/main/resources/log4j.properties
 
 ### Step 3: start pulling data from bitcoin exchanges ###
-Alternative to first argument(GDAXStreamingExchange), you can also provide following argument: info.bitrich.xchangestream.bitfinex.BitfinexStreamingExchange
+Alternative to first argument you can also provide following argument `info.bitrich.xchangestream.bitfinex.BitfinexStreamingExchange`
 
     BitcoinExchange.java info.bitrich.xchangestream.gdax.GDAXStreamingExchange src/main/resources/Producer.properties exchange
 
